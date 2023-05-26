@@ -11,6 +11,8 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@tanstack/vue-query": "^4.29.7",
+    "axios": "^1.4.0",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"
   },
