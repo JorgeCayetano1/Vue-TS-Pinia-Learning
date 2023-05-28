@@ -7,7 +7,19 @@ import './assets/main.css';
 
 const myApp = createApp(App);
 
-myApp.use(VueQueryPlugin);
+import '@/store/characters.store';
+
+//  myApp.use(VueQueryPlugin);
+VueQueryPlugin.install(myApp, {
+    queryClientConfig: {
+        defaultOptions: {
+            queries: {
+                cacheTime: 1000 * 120,
+                refetchOnReconnect: 'always',
+            }
+        }
+    }
+})
 
 myApp.use(router);
 
