@@ -1,49 +1,28 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router';
-import { useQuery } from '@tanstack/vue-query';
-import type { Character, Result } from '@/characters/interfaces/character';
-import characterStore from '../../store/characters.store';
-import breakingBadApi from '@/api/breakingBadApis';
+import { useRoute, useRouter } from 'vue-router';
+import useCharacter from '@/characters/composables/useCharacter';
+import { watchEffect } from 'vue';
 
 
 
 const route = useRoute();
+const router = useRouter();
 
 const { id } = route.params as { id: string };
+const { character, hasError, errorMessage, isLoading } = useCharacter(id);
 
-const getCharacterCacheFirst = async( characterId: string ):Promise<Character> => {
-    if (  characterStore.checkIdInStore(characterId) ) {
-        return characterStore.ids.list[characterId];
-    }
-
-    const { data } = await breakingBadApi.get<Result>(`/character/${characterId}`);
-    const response = {
-        info: {
-                count: 1,
-                pages: 1,
-                next: '',
-                prev: null,
-            },
-            results: [data]
-    };
-    return response;
-}
-
-const { data: character } = useQuery(
-    ['character', id],
-    () => getCharacterCacheFirst(id),
-    {
-        onSuccess(character) {
-            characterStore.loadedCharacter(character);
-        }
-    }
-);
+watchEffect( () => {
+    if (!isLoading.value && hasError.value) {
+        router.replace('/characters');
+    } 
+});
 
 </script>
 
 <template>
-    <h1 v-if="!character">Loading...</h1>
-    <div v-else>
+    <h1 v-if="isLoading">Loading...</h1>
+    <h1 v-else-if="hasError">{{ errorMessage }}</h1>
+    <div v-else-if="character">
         <h1>{{  character.results[0].name  }}</h1>
         <div class="character-container">
             <img :src="character.results[0].image" :alt="character.results[0].name">
